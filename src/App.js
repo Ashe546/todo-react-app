@@ -1,43 +1,54 @@
-import React, {useState, useRef, useEffect} from "react";
-import todo from "./todo";
-import TodoList from "./TodoList";
+import { useEffect, useState } from "react";
+import Form from "./components/form";
+import TodoList from "./components/TodoList";
+import './App.css'
 
-
-const LOCAL_STORAGE_KEY = 'todos'
 
 function App() {
-  const [todos, setTodos] = useState([])
-  const todoNameRef =useRef()
+  //states
+ const [inputText, setInputText] = useState("")
+ const [todo, setTodo] = useState([])
+ const [status, setStatus] = useState('all')
+ const [filterTodos, setFilterTodos] = useState([])
 
-  useEffect(()=> {
-    const storedTodo = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY))
-   if (storedTodo) setTodos(storedTodo)
-  }, [])
+ //EFFECTS
+ 
+ useEffect( ()=>{
+  filterTodosHandler();
+},[todo, status])
 
-  useEffect(()=>{
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
-  }, [todos])
-
-  function handelAddTodo(e) {
-       const name = todoNameRef.current.value
-       if (name === '') return
-       setTodos(prevTodos => {
-        return [...prevTodos, {id: 2, name: name, completed: false }]
-       })
-        todoNameRef.current.value = null
-       
-  }
+// filter function
+ const filterTodosHandler = () => {
+    switch (status) {
+      case 'completed':
+        setFilterTodos(todo.filter(todos => todos.completed === true));
+        break;
+        case 'uncompleted':
+          setFilterTodos(todo.filter(todos => todos.completed === false));
+          break;
+        default:
+        setFilterTodos(todo);
+        break;
+    } 
+ }
 
   return (
-    <>
-        <TodoList  todos={todos}/>
-      <input ref={todoNameRef} type = "text" />
-      <button onClick={handelAddTodo}>Add TodoList</button>
-      <button>clear complet TodoList</button>
-      <div>{todos.length} left todo</div>
-    </>
+    <div className="app">
+       <h1>Todo List</h1>
+       <Form 
+       todo = {todo} 
+       setTodo = {setTodo}
+        setInputText= {setInputText}
+         inputText = {inputText}
+         setStatus = {setStatus}
+         />
+       <TodoList 
+       inputText = {inputText}
+       todo = {todo}
+       setTodo = {setTodo}
+       filterTodos = {filterTodos}/>
+    </div>
   );
 }
 
 export default App;
-
